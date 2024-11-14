@@ -1,6 +1,6 @@
 package config
 
-type AppConfig struct {
+type PomodoroConfig struct {
 	// WorkMinutes колво минут выделенное на работу
 	WorkMinutes int `yaml:"workMinutes"`
 
@@ -16,6 +16,26 @@ type AppConfig struct {
 
 	// SessionsGoal цель сессий на день
 	SessionsGoal int `yaml:"sessionsGoal"`
+
+	// SessionGoalMinutes цель сессий на день в минутах, если какая то из сессий, например, не была полностью закончена
+	SessionGoalMinutes int
 }
 
-var Config AppConfig
+type AppConfig struct {
+	Port string `yaml:"port"`
+}
+
+type DatabaseConfig struct {
+	Addr   string `yaml:"addr"`
+	User   string `yaml:"user"`
+	Passwd string `yaml:"pass"`
+	DBName string `yaml:"dbname"`
+}
+
+type Cfg struct {
+	App      AppConfig      `yaml:"app"`
+	DB       DatabaseConfig `yaml:"db"`
+	Pomodoro PomodoroConfig `yaml:"pomodoro"`
+}
+
+var Config Cfg
