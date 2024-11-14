@@ -1,6 +1,9 @@
 package notify
 
-import "fmt"
+import (
+	"fmt"
+	"os/exec"
+)
 
 type MacosNotifier struct{}
 
@@ -9,6 +12,18 @@ func GetMacosNotifier() MacosNotifier {
 }
 
 func (m MacosNotifier) Notify(title, message string) error {
-	fmt.Println("MACOS NOTIFICATION: ", title, message)
+	cmd := exec.Command(
+		"osascript",
+		"-e",
+		fmt.Sprintf(
+			`display notification "%s" with title "%s"`,
+			message,
+			title,
+		),
+	)
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+
 	return nil
 }
