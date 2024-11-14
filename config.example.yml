@@ -1,0 +1,18 @@
+app:
+  port: 3333
+
+db:
+  addr: "localhost:5432"
+  user: root
+  pass: root
+  dbname: dbname
+
+pomodoro:
+  workMinutes: 5
+  shortBreakMinutes: 3
+  longBreakMinutes: 10
+
+  breakAfterSessions: 2
+
+  sessionsGoal: 2
+
