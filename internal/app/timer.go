@@ -11,6 +11,7 @@ import (
 
 	"github.com/algrvvv/pomodoro/internal/config"
 	"github.com/algrvvv/pomodoro/internal/notify"
+	"github.com/algrvvv/pomodoro/internal/repositories"
 	"github.com/algrvvv/pomodoro/internal/types"
 	"github.com/algrvvv/pomodoro/internal/utils"
 )
@@ -19,6 +20,8 @@ var (
 	sessionCount = 0
 	sessionType  = types.WorkSession
 	notifier     notify.Notifier
+	repo         repositories.SessionRepository
+	achivedGoal  bool
 )
 
 func saveTime(t *string) {
@@ -26,28 +29,54 @@ func saveTime(t *string) {
 		sessionCount++
 	}
 
-	if sessionCount == config.Config.SessionsGoal {
-		// TODO: потом отслеживать в бд, чтобы не повторяться
+	timeStr, err := time.Parse("15:04:05", *t)
+	if err != nil {
+		fmt.Println("failed to parse time: ", err)
+		return
+	}
+
+	minutes := int(timeStr.Hour())*60 + int(timeStr.Minute()) + int(timeStr.Second())/60
+	dur, err := repo.Save(minutes, sessionType)
+	if err != nil {
+		fmt.Println("failed to save data: ", err)
+		return
+	}
+
+	if !achivedGoal && dur >= config.Config.Pomodoro.SessionGoalMinutes {
 		fmt.Print(notify.GoalMessage)
 		notifier.Notify(
 			"You have reached your daily goal!",
 			fmt.Sprintf("You have already held %d working sessions today", sessionCount),
 		)
+		achivedGoal = !achivedGoal
 	}
+
 	// fmt.Printf("\n\n[%d] save working time: %v for %v\n\n", sessionCount, *t, sessionType)
 }
 
-func Start(ctx context.Context, n notify.Notifier, wg *sync.WaitGroup) error {
+func Start(
+	ctx context.Context,
+	n notify.Notifier,
+	r repositories.SessionRepository,
+	wg *sync.WaitGroup,
+) error {
 	defer wg.Done()
+	var err error
+
 	scanner := bufio.NewScanner(os.Stdin)
 	notifier = n
+	repo = r
+	achivedGoal, err = repo.GoalAchivedToday()
+	if err != nil {
+		return err
+	}
 
 	for {
 		if sessionType == types.WorkSession {
 			utils.ClearTerminal()
 			fmt.Print(notify.BackToWork)
 
-			workDuration := time.Duration(config.Config.WorkMinutes) * time.Second
+			workDuration := time.Duration(config.Config.Pomodoro.WorkMinutes) * time.Second
 			if err := startTimer(ctx, workDuration); err != nil {
 				return err
 			}
@@ -59,10 +88,10 @@ func Start(ctx context.Context, n notify.Notifier, wg *sync.WaitGroup) error {
 
 			var breakDuration time.Duration
 
-			if sessionCount%config.Config.BreakAfterSessions == 0 && sessionCount != 0 {
-				breakDuration = time.Duration(config.Config.LongBreakMinutes) * time.Second
+			if sessionCount%config.Config.Pomodoro.BreakAfterSessions == 0 && sessionCount != 0 {
+				breakDuration = time.Duration(config.Config.Pomodoro.LongBreakMinutes) * time.Second
 			} else {
-				breakDuration = time.Duration(config.Config.ShortBreakMinutes) * time.Second
+				breakDuration = time.Duration(config.Config.Pomodoro.ShortBreakMinutes) * time.Second
 			}
 
 			if err := startTimer(ctx, breakDuration); err != nil {
