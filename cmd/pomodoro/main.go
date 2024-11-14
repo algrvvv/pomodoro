@@ -22,7 +22,7 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 
 	wg.Add(1)
-	notifier := notify.GetMacosNotifier()
+	notifier := notify.GetTerminalNotifier()
 
 	if err := app.Start(ctx, notifier, &wg); err != nil {
 		fmt.Println("app error: ", err)
