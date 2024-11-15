@@ -8,7 +8,7 @@ type SessionRepository interface {
 }
 
 type Session struct {
-	ID          int
-	Minutes     int
-	SessionType int
+	ID          int `json:"id"`
+	Minutes     int `json:"duration"`
+	SessionType int `json:"type"`
 }
