@@ -1,5 +1,7 @@
 package repositories
 
+import "time"
+
 type SessionRepository interface {
 	GetAll() (sessions []Session, err error)
 	GoalAchivedToday() (achived bool, err error)
@@ -8,7 +10,8 @@ type SessionRepository interface {
 }
 
 type Session struct {
-	ID          int `json:"id"`
-	Minutes     int `json:"duration"`
-	SessionType int `json:"type"`
+	ID          int       `json:"id"`
+	Minutes     int       `json:"duration"`
+	SessionType int       `json:"type"`
+	CreatedAt   time.Time `json:"date"`
 }

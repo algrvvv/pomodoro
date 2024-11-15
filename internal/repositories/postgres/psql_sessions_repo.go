@@ -21,7 +21,7 @@ func NewPostgresRepo() repositories.SessionRepository {
 func (p *PostgresSessionRepo) GetAll() (sessions []repositories.Session, err error) {
 	var rows *sql.Rows
 
-	query := "SELECT id, duration, type_id from sessions"
+	query := "SELECT id, duration, type_id, created_at from sessions"
 	rows, err = database.C.Query(query)
 	if err != nil {
 		return
@@ -30,7 +30,7 @@ func (p *PostgresSessionRepo) GetAll() (sessions []repositories.Session, err err
 
 	for rows.Next() {
 		var s repositories.Session
-		if err = rows.Scan(&s.ID, &s.Minutes, &s.SessionType); err != nil {
+		if err = rows.Scan(&s.ID, &s.Minutes, &s.SessionType, &s.CreatedAt); err != nil {
 			return
 		}
 
@@ -46,7 +46,7 @@ func (p *PostgresSessionRepo) GetTodaySessions() (sessions []repositories.Sessio
 	start := time.Now().Add(-24 * time.Hour)
 	end := time.Now()
 
-	query := "SELECT id, duration, type_id from sessions WHERE created_at > $1 and created_at < $2"
+	query := "SELECT id, duration, type_id, created_at from sessions WHERE created_at > $1 and created_at < $2"
 	rows, err = database.C.Query(query, start, end)
 	if err != nil {
 		return
@@ -55,7 +55,7 @@ func (p *PostgresSessionRepo) GetTodaySessions() (sessions []repositories.Sessio
 
 	for rows.Next() {
 		var s repositories.Session
-		if err = rows.Scan(&s.ID, &s.Minutes, &s.SessionType); err != nil {
+		if err = rows.Scan(&s.ID, &s.Minutes, &s.SessionType, &s.CreatedAt); err != nil {
 			return
 		}
 
