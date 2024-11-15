@@ -2,7 +2,10 @@ package main
 
 import (
 	"context"
+	"errors"
+	"flag"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"sync"
@@ -12,9 +15,19 @@ import (
 	"github.com/algrvvv/pomodoro/internal/database"
 	"github.com/algrvvv/pomodoro/internal/notify"
 	repos "github.com/algrvvv/pomodoro/internal/repositories/postgres"
+	"github.com/algrvvv/pomodoro/internal/server"
 )
 
+var onlyWebServer bool
+
 func main() {
+	flag.BoolVar(&onlyWebServer, "only-web", false, "only web server")
+	flag.Parse()
+
+	// TODO: перед запуском проверять на наличие данных за прошлый месяц, так как у нас нет аналитики
+	// у нас нет нужды в том, чтобы долго хранить данные. поэтому данные за прошлый месяц (не последние 30 дней)
+	// мы можем просто чистить
+
 	if err := config.Parse("config.yml"); err != nil {
 		fmt.Println("failed to load config")
 		os.Exit(1)
@@ -29,17 +42,38 @@ func main() {
 	wg := sync.WaitGroup{}
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 
-	wg.Add(1)
-	notifier := notify.GetTerminalNotifier()
 	sessionRepo := repos.NewPostgresRepo()
+	serv := server.NewServer(sessionRepo)
 
-	if err := app.Start(ctx, notifier, sessionRepo, &wg); err != nil {
-		fmt.Println("app error: ", err)
-		os.Exit(0)
+	if !onlyWebServer {
+		wg.Add(1)
+		notifier := notify.GetTerminalNotifier()
+
+		go func() {
+			if err := app.Start(ctx, notifier, sessionRepo, &wg); err != nil {
+				fmt.Println("app error: ", err)
+				os.Exit(0)
+			}
+		}()
 	}
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if err := serv.ListenAndServe(); err != nil {
+			if !errors.Is(err, http.ErrServerClosed) {
+				fmt.Println("web server error: ", err)
+				os.Exit(0)
+			}
+		}
+	}()
 
 	<-ctx.Done()
 	fmt.Println("got Interrupt. exiting")
+
+	if err := serv.Shutdown(context.Background()); err != nil {
+		fmt.Println("server shutdown error: ", err)
+	}
 
 	cancel()
 	wg.Wait()
