@@ -9,6 +9,7 @@ import (
 	"github.com/algrvvv/pomodoro/internal/config"
 	"github.com/algrvvv/pomodoro/internal/database"
 	"github.com/algrvvv/pomodoro/internal/repositories"
+	"github.com/algrvvv/pomodoro/internal/types"
 )
 
 type PostgresSessionRepo struct{}
@@ -73,7 +74,9 @@ func (p *PostgresSessionRepo) GoalAchivedToday() (achived bool, err error) {
 
 	var duration int
 	for _, s := range sessions {
-		duration += s.Minutes
+		if s.SessionType == types.WorkSession {
+			duration += s.Minutes
+		}
 	}
 
 	return duration >= config.Config.Pomodoro.SessionGoalMinutes, nil
