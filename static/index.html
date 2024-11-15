@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Статистика сессий</title>
+
+  <link rel="stylesheet" href="/style.css">
+
+  <script src="https://unpkg.com/htmx.org@1.5.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/index.js" defer></script>
+
+</head>
+
+<body>
+  <div class="container">
+    <!-- Верхняя часть -->
+    <div class="wrapper">
+      <div class="calendar">
+        <h3>Календарь</h3>
+        <div class="calendar-days">
+        </div>
+      </div>
+
+      <div class="line-chart">
+        <h3>Линейный график сессий</h3>
+        <canvas id="lineChart" width="400" height="200"></canvas>
+      </div>
+      <!-- <div class="chart"> -->
+      <!--   <h3>График сессий</h3> -->
+      <!--   <div class="chart-bars"></div> -->
+      <!-- </div> -->
+    </div>
+
+    <!-- Нижняя часть -->
+    <div class="sessions">
+      <h3>Список всех сессий</h3>
+      <ul></ul>
+    </div>
+  </div>
+</body>
+
+</html>
