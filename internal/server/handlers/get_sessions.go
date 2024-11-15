@@ -4,8 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/algrvvv/pomodoro/internal/config"
 	"github.com/algrvvv/pomodoro/internal/repositories"
+	"github.com/algrvvv/pomodoro/internal/types"
 )
 
 func GetData(repo repositories.SessionRepository) http.HandlerFunc {
@@ -17,17 +20,35 @@ func GetData(repo repositories.SessionRepository) http.HandlerFunc {
 			return
 		}
 
-		// var datesAchivedGoal []string
+		sCount := make(map[string]int, len(sessions))
+		sDuration := make(map[string]int, len(sessions))
+		for _, s := range sessions {
+			if s.SessionType != types.WorkSession {
+				continue
+			}
+
+			t := s.CreatedAt.Format(time.DateOnly)
+			if _, ok := sCount[t]; !ok {
+				sCount[t] = 1
+				sDuration[t] = s.Minutes
+			} else {
+				sCount[t] += 1
+				sDuration[t] += s.Minutes
+			}
+		}
+
+		datesAchivedGoal := []string{}
+		for d, m := range sDuration {
+			if m >= config.Config.Pomodoro.SessionGoalMinutes {
+				datesAchivedGoal = append(datesAchivedGoal, d)
+			}
+		}
 
 		data := map[string]interface{}{
 			"status":   true,
 			"sessions": sessions,
-			"calendar": []string{"2024-11-05", "2024-11-10", "2024-11-15"},
-			"chart": map[string]int{
-				"2024-11-05": 3,
-				"2024-11-10": 5,
-				"2024-11-15": 8,
-			},
+			"calendar": datesAchivedGoal,
+			"chart":    sCount,
 		}
 
 		// jsonData, err := json.Marshal(data)
