@@ -76,7 +76,7 @@ func Start(
 			utils.ClearTerminal()
 			fmt.Print(notify.BackToWork)
 
-			workDuration := time.Duration(config.Config.Pomodoro.WorkMinutes) * time.Second
+			workDuration := time.Duration(config.Config.Pomodoro.WorkMinutes) * time.Minute
 			if err := startTimer(ctx, workDuration); err != nil {
 				return err
 			}
@@ -89,9 +89,9 @@ func Start(
 			var breakDuration time.Duration
 
 			if sessionCount%config.Config.Pomodoro.BreakAfterSessions == 0 && sessionCount != 0 {
-				breakDuration = time.Duration(config.Config.Pomodoro.LongBreakMinutes) * time.Second
+				breakDuration = time.Duration(config.Config.Pomodoro.LongBreakMinutes) * time.Minute
 			} else {
-				breakDuration = time.Duration(config.Config.Pomodoro.ShortBreakMinutes) * time.Second
+				breakDuration = time.Duration(config.Config.Pomodoro.ShortBreakMinutes) * time.Minute
 			}
 
 			if err := startTimer(ctx, breakDuration); err != nil {
