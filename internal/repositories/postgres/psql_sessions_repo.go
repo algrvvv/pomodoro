@@ -113,3 +113,13 @@ func (p *PostgresSessionRepo) Save(m int, t int) (duration int, err error) {
 
 	return
 }
+
+func (p *PostgresSessionRepo) DeletePrevSessions() (err error) {
+	now := time.Now()
+	firstDayCurrentMounth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
+
+	query := "DELETE FROM sessions WHERE created_at < $1"
+	_, err = database.C.Exec(query, firstDayCurrentMounth)
+
+	return
+}

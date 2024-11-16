@@ -7,6 +7,7 @@ type SessionRepository interface {
 	GoalAchivedToday() (achived bool, err error)
 	GetTodaySessions() (sessions []Session, err error)
 	Save(m int, t int) (duration int, err error)
+	DeletePrevSessions() (err error)
 }
 
 type Session struct {
