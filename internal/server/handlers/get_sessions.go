@@ -44,9 +44,16 @@ func GetData(repo repositories.SessionRepository) http.HandlerFunc {
 			}
 		}
 
+		todaySessions, err := repo.GetTodaySessions()
+		if err != nil {
+			fmt.Println("failed to get today sessions: ", err)
+			http.Error(w, "failed to get sessions", http.StatusInternalServerError)
+			return
+		}
+
 		data := map[string]interface{}{
 			"status":   true,
-			"sessions": sessions,
+			"sessions": todaySessions,
 			"calendar": datesAchivedGoal,
 			"chart":    sCount,
 		}
