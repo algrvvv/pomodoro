@@ -3,8 +3,9 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(response => response.json())
     .then(data => {
       console.log(data)
-      renderCalendar(data.calendar);
-      // renderChart(data.chart)
+
+      const today = new Date();
+      renderCalendar(today.getMonth(), today.getFullYear(), data.calendar);
       renderSessions(data.sessions);
       renderLineChart(data.chart)
     });
@@ -23,7 +24,7 @@ function renderSessions(sessions) {
   });
 }
 
-function renderCalendar(dates) {
+function renderCalendar(month, year, dates) {
   const calendar = document.querySelector(".calendar");
   calendar.innerHTML = '<h3>Календарь сессий</h3>';
 
@@ -31,55 +32,30 @@ function renderCalendar(dates) {
   daysContainer.className = "calendar-days";
   calendar.appendChild(daysContainer);
 
-  // Получаем текущий месяц и год
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth(); // 0-индексация для месяцев: 0 = январь
-
-  // Следующий месяц с днем 0 = последний день текущего месяца
   const daysInMonth = new Date(year, month + 1, 0).getDate(); 
+  const firstDayOfWeek = new Date(year, month, 1).getDay();
+  const correctedFirstDay = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1; 
+
+  for (let i = 0; i < correctedFirstDay; i++) {
+    const emptyCell = document.createElement("div");
+    emptyCell.classList.add("empty");
+    daysContainer.appendChild(emptyCell);
+  }
 
   for (let i = 1; i <= daysInMonth; i++) {
     const day = document.createElement("span");
     day.className = "day";
     day.textContent = i;
 
-    // Формируем дату в формате YYYY-MM-DD
+    // форматируем дату в формате YYYY-MM-DD
     const date = `${year}-${String(month + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`;
 
-    // Проверяем, есть ли дата в полученных данных
     if (dates.includes(date)) {
-      day.classList.add("selected"); // Подсвечиваем дни, которые есть в данных
+      day.classList.add("selected");
     }
 
-    daysContainer.appendChild(day); // Добавляем день в контейнер
+    daysContainer.appendChild(day);
   }
-}
-
-function renderChart(chartData) {
-  const chartContainer = document.querySelector(".chart-bars");
-  chartContainer.innerHTML = ""; // Очищаем график перед рендерингом
-
-  // Найдем максимальное значение для масштабирования
-  const maxSessions = Math.max(...Object.values(chartData));
-
-  // Преобразуем данные в массив [дата, значение] и отсортируем по дате
-  const sortedData = Object.entries(chartData).sort(([dateA], [dateB]) => new Date(dateA) - new Date(dateB));
-
-  // Создаем бары для графика
-  sortedData.forEach(([date, count]) => {
-    const bar = document.createElement("div");
-    bar.className = "bar";
-    bar.style.height = `${(count / maxSessions) * 100}%`; // Высота в процентах от максимального значения
-    bar.title = `${date}: ${count} сессий`; // Подсказка при наведении
-    chartContainer.appendChild(bar);
-
-    // Добавляем подпись под баром
-    const label = document.createElement("span");
-    label.className = "label";
-    label.textContent = new Date(date).getDate(); // День месяца
-    chartContainer.appendChild(label);
-  });
 }
 
 function renderLineChart(chartData) {
@@ -98,23 +74,23 @@ function renderLineChart(chartData) {
         {
           label: "Количество сессий",
           data: data,
-          borderColor: "#4caf50", // Цвет линии
-          backgroundColor: "rgba(76, 175, 80, 0.2)", // Полупрозрачный цвет заливки
+          borderColor: "#4caf50", 
+          backgroundColor: "rgba(76, 175, 80, 0.2)", 
           borderWidth: 2,
-          pointBackgroundColor: "#4caf50", // Цвет точек
-          pointRadius: 4, // Размер точек
-          fill: true, // Включить заливку под линией
-          tension: 0.4, // Сделать линию сглаженной
+          pointBackgroundColor: "#4caf50",
+          pointRadius: 4,
+          fill: true, 
+          tension: 0.4,
         },
       ],
     },
     options: {
       responsive: true,
-      maintainAspectRatio: true, // включить, если размер родителя не зафиксирован 
+      maintainAspectRatio: true,
       interaction: {
-        mode: "nearest", // Отображать подсказку для ближайшей точки
-        axis: "x", // Ограничиваем по оси X
-        intersect: false, // Не обязательно пересекать точку мышью
+        mode: "nearest",
+        axis: "x", 
+        intersect: false, 
       },
       plugins: {
         tooltip: {

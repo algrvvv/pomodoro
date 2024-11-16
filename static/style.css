@@ -103,6 +103,10 @@ body {
   margin-top: 10px;
 }
 
+.calendar-days .empty {
+  visibility: hidden; /* Пустые ячейки будут невидимыми */
+}
+
 .day {
   display: flex;
   align-items: center;
