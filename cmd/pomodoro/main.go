@@ -24,10 +24,6 @@ func main() {
 	flag.BoolVar(&onlyWebServer, "only-web", false, "only web server")
 	flag.Parse()
 
-	// TODO: перед запуском проверять на наличие данных за прошлый месяц, так как у нас нет аналитики
-	// у нас нет нужды в том, чтобы долго хранить данные. поэтому данные за прошлый месяц (не последние 30 дней)
-	// мы можем просто чистить
-
 	if err := config.Parse("config.yml"); err != nil {
 		fmt.Println("failed to load config")
 		os.Exit(1)
@@ -44,6 +40,13 @@ func main() {
 
 	sessionRepo := repos.NewPostgresRepo()
 	serv := server.NewServer(sessionRepo)
+
+	// NOTE: перед запуском проверяем наличие данных за прошлые месяца, так как у нас нет аналитики - у нас нет нужды в том,
+	// чтобы долго хранить данные. поэтому данные за прошлый месяц (не последние 30 дней) мы можем просто чистить
+	if err := sessionRepo.DeletePrevSessions(); err != nil {
+		fmt.Println("failed to delete prev sessions: ", err)
+		os.Exit(1)
+	}
 
 	if !onlyWebServer {
 		wg.Add(1)
