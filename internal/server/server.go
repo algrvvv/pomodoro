@@ -12,6 +12,7 @@ func NewServer(r repositories.SessionRepository) *http.Server {
 	s := http.NewServeMux()
 
 	s.HandleFunc("GET /api/v1/data", handlers.GetData(r))
+	s.HandleFunc("/ws", handlers.GetPassedSessionTime)
 
 	// статический роут для клиентских файлов
 	s.Handle("/", http.FileServer(http.Dir("./static")))

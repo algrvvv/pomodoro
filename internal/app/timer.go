@@ -154,7 +154,8 @@ func startTimer(ctx context.Context, duration time.Duration) error {
 				seconds := int(dif.Seconds()) % 60
 				timeDiff = fmt.Sprintf("%02d:%02d:%02d", hours, minutes, seconds)
 
-				fmt.Printf("\rTime passed: %s", timeDiff)
+				fmt.Printf("\r⏱️ Time passed: %s", timeDiff)
+				handlers.SendTime(timeDiff)
 			case <-c.Done():
 				fmt.Print("\n\n\n\n")
 				return
