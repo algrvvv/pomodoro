@@ -21,7 +21,7 @@ func NewPostgresRepo() repositories.SessionRepository {
 func (p *PostgresSessionRepo) GetAll() (sessions []repositories.Session, err error) {
 	var rows *sql.Rows
 
-	query := "SELECT id, duration, type_id, created_at from sessions"
+	query := "SELECT id, duration, type_id, created_at FROM sessions ORDER BY created_at DESC"
 	rows, err = database.C.Query(query)
 	if err != nil {
 		return
@@ -46,7 +46,8 @@ func (p *PostgresSessionRepo) GetTodaySessions() (sessions []repositories.Sessio
 	start := time.Now().Add(-24 * time.Hour)
 	end := time.Now()
 
-	query := "SELECT id, duration, type_id, created_at from sessions WHERE created_at > $1 and created_at < $2"
+	query := "SELECT id, duration, type_id, created_at from sessions WHERE created_at > $1 and created_at < $2 " +
+		"ORDER BY created_at DESC"
 	rows, err = database.C.Query(query, start, end)
 	if err != nil {
 		return
