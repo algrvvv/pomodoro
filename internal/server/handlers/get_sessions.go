@@ -22,6 +22,7 @@ func GetData(repo repositories.SessionRepository) http.HandlerFunc {
 
 		sCount := make(map[string]int, len(sessions))
 		sDuration := make(map[string]int, len(sessions))
+		totalMinutes := 0
 		for _, s := range sessions {
 			if s.SessionType != types.WorkSession {
 				continue
@@ -35,6 +36,7 @@ func GetData(repo repositories.SessionRepository) http.HandlerFunc {
 				sCount[t] += 1
 				sDuration[t] += s.Minutes
 			}
+			totalMinutes += s.Minutes
 		}
 
 		datesAchivedGoal := []string{}
@@ -52,10 +54,12 @@ func GetData(repo repositories.SessionRepository) http.HandlerFunc {
 		}
 
 		data := map[string]interface{}{
-			"status":   true,
-			"sessions": todaySessions,
-			"calendar": datesAchivedGoal,
-			"chart":    sCount,
+			"status":       true,
+			"minutesGoal":  config.Config.Pomodoro.SessionGoalMinutes,
+			"totalMinutes": totalMinutes,
+			"sessions":     todaySessions,
+			"calendar":     datesAchivedGoal,
+			"chart":        sCount,
 		}
 
 		// jsonData, err := json.Marshal(data)
