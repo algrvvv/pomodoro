@@ -16,22 +16,41 @@
 
 <body>
   <div class="container">
+    <div class="stats">
+
+      <div class="stats-block">
+        <h3>Текущая сессия</h3>
+        <span id="stats-stopwatch">Загрузка...</span>
+      </div>
+
+      <div class="stats-block">
+        <h3>Минут за месяц</h3>
+        <span id="stats-total-minutes"></span>
+      </div>
+
+      <div class="stats-block">
+        <h3>Минут за сутки</h3>
+        <span id="stats-today-minutes"></span>
+      </div>
+
+
+      <div class="stats-block">
+        <h3>Стрик дней</h3>
+        <span id="streak"></span>
+      </div>
+    </div>
+
     <!-- Верхняя часть -->
     <div class="wrapper">
       <div class="calendar">
-        <h3>Календарь</h3>
-        <div class="calendar-days">
-        </div>
+        <h3>Достижение цели</h3>
+        <div class="calendar-days"></div>
       </div>
 
       <div class="line-chart">
-        <h3>Линейный график сессий</h3>
+        <h3>Количество сессий за месяц</h3>
         <canvas id="lineChart" width="400" height="200"></canvas>
       </div>
-      <!-- <div class="chart"> -->
-      <!--   <h3>График сессий</h3> -->
-      <!--   <div class="chart-bars"></div> -->
-      <!-- </div> -->
     </div>
 
     <!-- Нижняя часть -->
