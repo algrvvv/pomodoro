@@ -1,40 +1,101 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const stopwatch = document.getElementById('stats-stopwatch')
+  const socket = new WebSocket(`ws://localhost:3333/ws`)
+
+  socket.onopen = () => {
+    console.log('websocket connected')
+    setTimeout(() => {
+      // console.log(stopwatch.innerHTML)
+      if (stopwatch.innerHTML == "Загрузка...") {
+        stopwatch.innerHTML = "Нет активной сессии"
+      }
+    }, 3000)
+  }
+
+  socket.onmessage = (msg) => {
+    stopwatch.innerHTML = msg.data
+    // console.log('got data: ', msg.data)
+  }
+
+  socket.onclose = () => {
+    console.warn('websocket closed')
+  }
+
+  socket.onerror = (err) => {
+    console.error(err)
+  }
+
   fetch("/api/v1/data")
     .then(response => response.json())
     .then(data => {
       console.log(data)
 
       const today = new Date();
+      const todayString = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`
+
       renderCalendar(today.getMonth(), today.getFullYear(), data.calendar);
       renderSessions(data.sessions);
-      renderLineChart(data.chart)
+
+      renderLineChart(data.chart, todayString)
+
+      renderTotalMinutes(data.totalMinutes)
     });
 });
 
+function renderTotalMinutes(minutes) {
+  document.getElementById('stats-total-minutes').innerHTML = minutes
+}
+
 function renderSessions(sessions) {
-  console.log('got sessions: ', sessions)
+  // console.log('got sessions: ', sessions)
   const container = document.querySelector('.sessions ul')
   container.innerHTML = ""
 
+  if (!sessions) { return }
+
+  let totalToday = 0
   sessions.forEach(s => {
+    totalToday += s.duration
+
     const li = document.createElement('li')
     const type = s.type == 1 ? 'Работа' : 'Отдых'
-    li.textContent = `Сессия ${s.id}: Продолжительность ${s.duration} мин - ${type}`
+
+    // TODO: change to 'padStart()'
+    const getCorrectMinutes = function(time) {
+      const minutes = time.getMinutes().toString()
+      return minutes.padStart(2, '0')
+      // if (minutes.length == 1) { return `0${minutes}` }
+      // return minutes
+    }
+
+    const endDate = new Date(s.date)
+    const startDate = new Date(s.date).setMinutes(endDate.getMinutes() - s.duration)
+    const startTime = new Date(startDate)
+
+    const startMinutes = getCorrectMinutes(startTime)
+    const endMinutes = getCorrectMinutes(endDate)
+
+    const time = `${startTime.getHours()}:${startMinutes} - ${endDate.getHours()}:${endMinutes}`
+    const date = `${endDate.getDate()}.${endDate.getMonth()}.${endDate.getFullYear()} ${time}`
+
+    li.textContent = `Сессия ${s.id} (${date}): Продолжительность ${s.duration} мин - ${type}`
     container.appendChild(li)
   });
+
+  document.getElementById('stats-today-minutes').innerHTML = totalToday;
 }
 
 function renderCalendar(month, year, dates) {
   const calendar = document.querySelector(".calendar");
-  calendar.innerHTML = '<h3>Календарь сессий</h3>';
+  calendar.innerHTML = '<h3>Достижение цели</h3>';
 
   const daysContainer = document.createElement("div");
   daysContainer.className = "calendar-days";
   calendar.appendChild(daysContainer);
 
-  const daysInMonth = new Date(year, month + 1, 0).getDate(); 
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDayOfWeek = new Date(year, month, 1).getDay();
-  const correctedFirstDay = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1; 
+  const correctedFirstDay = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
 
   for (let i = 0; i < correctedFirstDay; i++) {
     const emptyCell = document.createElement("div");
@@ -42,6 +103,8 @@ function renderCalendar(month, year, dates) {
     daysContainer.appendChild(emptyCell);
   }
 
+  let streak = 0;
+  const today = new Date().getDate();
   for (let i = 1; i <= daysInMonth; i++) {
     const day = document.createElement("span");
     day.className = "day";
@@ -52,13 +115,19 @@ function renderCalendar(month, year, dates) {
 
     if (dates.includes(date)) {
       day.classList.add("selected");
+      streak++
+    } else {
+      if (today >= i) { streak = 0 }
     }
 
     daysContainer.appendChild(day);
   }
+  document.getElementById('streak').innerHTML = streak;
 }
 
-function renderLineChart(chartData) {
+function renderLineChart(chartData, today) {
+  if (!chartData[today]) { chartData[today] = 0 }
+
   const ctx = document.getElementById("lineChart").getContext("2d");
 
   const sortedData = Object.entries(chartData).sort(([dateA], [dateB]) => new Date(dateA) - new Date(dateB));
@@ -74,12 +143,12 @@ function renderLineChart(chartData) {
         {
           label: "Количество сессий",
           data: data,
-          borderColor: "#4caf50", 
-          backgroundColor: "rgba(76, 175, 80, 0.2)", 
+          borderColor: "#4caf50",
+          backgroundColor: "rgba(76, 175, 80, 0.2)",
           borderWidth: 2,
           pointBackgroundColor: "#4caf50",
           pointRadius: 4,
-          fill: true, 
+          fill: true,
           tension: 0.4,
         },
       ],
@@ -89,14 +158,14 @@ function renderLineChart(chartData) {
       maintainAspectRatio: true,
       interaction: {
         mode: "nearest",
-        axis: "x", 
-        intersect: false, 
+        axis: "x",
+        intersect: false,
       },
       plugins: {
         tooltip: {
           enabled: true,
           callbacks: {
-            label: function (context) {
+            label: function(context) {
               return `Дата: ${context.label}, Сессии: ${context.raw}`;
             },
           },
