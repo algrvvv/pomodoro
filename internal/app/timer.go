@@ -12,6 +12,7 @@ import (
 	"github.com/algrvvv/pomodoro/internal/config"
 	"github.com/algrvvv/pomodoro/internal/notify"
 	"github.com/algrvvv/pomodoro/internal/repositories"
+	"github.com/algrvvv/pomodoro/internal/server/handlers"
 	"github.com/algrvvv/pomodoro/internal/types"
 	"github.com/algrvvv/pomodoro/internal/utils"
 )
