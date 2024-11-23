@@ -60,22 +60,20 @@ function renderSessions(sessions) {
     const li = document.createElement('li')
     const type = s.type == 1 ? 'Работа' : 'Отдых'
 
-    // TODO: change to 'padStart()'
-    const getCorrectMinutes = function(time) {
+    const getCorrectFormat = function(time) {
       const minutes = time.getMinutes().toString()
-      return minutes.padStart(2, '0')
-      // if (minutes.length == 1) { return `0${minutes}` }
-      // return minutes
+      const hours = time.getHours().toString()
+      return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`
     }
 
     const endDate = new Date(s.date)
     const startDate = new Date(s.date).setMinutes(endDate.getMinutes() - s.duration)
     const startTime = new Date(startDate)
 
-    const startMinutes = getCorrectMinutes(startTime)
-    const endMinutes = getCorrectMinutes(endDate)
+    const fStartTime = getCorrectFormat(startTime)
+    const fEndTime = getCorrectFormat(endDate)
 
-    const time = `${startTime.getHours()}:${startMinutes} - ${endDate.getHours()}:${endMinutes}`
+    const time = `${fStartTime} - ${fEndTime}`
     const date = `${endDate.getDate()}.${endDate.getMonth()}.${endDate.getFullYear()} ${time}`
 
     li.textContent = `Сессия ${s.id} (${date}): Продолжительность ${s.duration} мин - ${type}`
@@ -147,7 +145,7 @@ function renderLineChart(chartData, today) {
           backgroundColor: "rgba(76, 175, 80, 0.2)",
           borderWidth: 2,
           pointBackgroundColor: "#4caf50",
-          pointRadius: 4,
+          pointRadius: 2,
           fill: true,
           tension: 0.4,
         },
