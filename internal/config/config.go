@@ -22,7 +22,8 @@ type PomodoroConfig struct {
 }
 
 type AppConfig struct {
-	Port string `yaml:"port"`
+	Port            string `yaml:"port"`
+	DisplayZeroDays bool   `yaml:"displayZeroDays"`
 }
 
 type DatabaseConfig struct {

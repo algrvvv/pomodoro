@@ -1,5 +1,6 @@
 app:
   port: 3333
+  displayZeroDays: true # отображение дней с нулевыми сессиями
 
 db:
   addr: "localhost:5432"
