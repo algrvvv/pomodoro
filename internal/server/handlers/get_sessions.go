@@ -11,7 +11,11 @@ import (
 	"github.com/algrvvv/pomodoro/internal/types"
 )
 
+var displayZero bool
+
 func GetData(repo repositories.SessionRepository) http.HandlerFunc {
+	displayZero = config.Config.App.DisplayZeroDays
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		sessions, err := repo.GetAll()
 		if err != nil {
@@ -23,10 +27,21 @@ func GetData(repo repositories.SessionRepository) http.HandlerFunc {
 		sCount := make(map[string]int, len(sessions))
 		sDuration := make(map[string]int, len(sessions))
 		totalMinutes := 0
+		var lastDate time.Time
 		for _, s := range sessions {
 			if s.SessionType != types.WorkSession {
 				continue
 			}
+
+			// проверка на пропещенные дни, котрые мы должны забить нулями
+			if d := lastDate.Day() - s.CreatedAt.Day(); displayZero && d > 1 {
+				for i := lastDate.Add(-24 * time.Hour); i.Day() != s.CreatedAt.Day(); i = i.Add(-24 * time.Hour) {
+					iFormat := i.Format(time.DateOnly)
+					sCount[iFormat] = 0
+					sDuration[iFormat] = 0
+				}
+			}
+			lastDate = s.CreatedAt
 
 			t := s.CreatedAt.Format(time.DateOnly)
 			if _, ok := sCount[t]; !ok {
@@ -37,6 +52,15 @@ func GetData(repo repositories.SessionRepository) http.HandlerFunc {
 				sDuration[t] += s.Minutes
 			}
 			totalMinutes += s.Minutes
+		}
+
+		if displayZero {
+			// если есть дни с начала месяца, которых нет в общем списке сессий - заполняем их нулями
+			date := lastDate
+			for d := lastDate.Day() - 1; d > 0; d-- {
+				date = date.Add(-24 * time.Hour)
+				sCount[date.Format(time.DateOnly)] = 0
+			}
 		}
 
 		datesAchivedGoal := []string{}
