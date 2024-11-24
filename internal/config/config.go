@@ -1,6 +1,10 @@
 package config
 
 type PomodoroConfig struct {
+	// StartWorkReminder колво минут через которое будет высвечено напоминание о начале
+	// новой рабочей сессии
+	StartSessionReminder int `yaml:"startSessionReminder"`
+
 	// WorkMinutes колво минут выделенное на работу
 	WorkMinutes int `yaml:"workMinutes"`
 

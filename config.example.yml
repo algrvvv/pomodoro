@@ -9,6 +9,9 @@ db:
   dbname: dbname
 
 pomodoro:
+  # через сколько минут напомнить о начале рабочей сессии
+  startSessionReminder: 5 
+
   workMinutes: 5
   shortBreakMinutes: 3
   longBreakMinutes: 10
