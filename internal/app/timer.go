@@ -31,7 +31,7 @@ func saveTime(t *string) {
 	}
 
 	timeStr, err := time.Parse("15:04:05", *t)
-	if err != nil {
+	if err != nil && *t != "" {
 		fmt.Println("failed to parse time: ", err)
 		return
 	}
@@ -65,6 +65,8 @@ func Start(
 	var err error
 
 	scanner := bufio.NewScanner(os.Stdin)
+	scannerDone := make(chan error)
+
 	notifier = n
 	repo = r
 	achivedGoal, err = repo.GoalAchivedToday()
@@ -102,17 +104,33 @@ func Start(
 			sessionType = types.WorkSession
 		}
 
-		fmt.Println("\n\npress Enter to continue or write q to quit...")
-		if scanner.Scan() {
-			line := scanner.Text()
-			if line == "q" || line == "quit" {
-				return errors.New("quit by user")
+		fmt.Println("\n\npress enter to continue or write q to quit...")
+		go func() {
+			defer close(scannerDone)
+			if scanner.Scan() {
+				line := scanner.Text()
+				if line == "q" || line == "quit" {
+					scannerDone <- errors.New("quit by user")
+				}
+			} else {
+				if scanner.Err() != nil {
+					scannerDone <- errors.New("scanner error")
+				}
+				scannerDone <- errors.New("failed to get user data")
 			}
-		} else {
-			if scanner.Err() != nil {
-				return scanner.Err()
+		}()
+
+	loop:
+		for {
+			select {
+			case <-time.After(time.Duration(config.Config.Pomodoro.StartSessionReminder) * time.Minute):
+				_ = notifier.Notify("Reminder", "Did you remember to start a new work session?")
+			case err := <-scannerDone:
+				if err != nil {
+					return err
+				}
+				break loop
 			}
-			return errors.New("failed to get data from scanner")
 		}
 	}
 }
