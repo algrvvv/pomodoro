@@ -126,18 +126,13 @@ func Start(
 
 	loop:
 		for {
-			fmt.Println("loop for select statement")
 			select {
-			// case <-time.After(time.Duration(config.Config.Pomodoro.StartSessionReminder) * time.Minute):
 			case <-timer.C:
-				fmt.Println("case after time", config.Config.Pomodoro.StartSessionReminder)
 				_ = notifier.Notify("Reminder", "Did you remember to start a new work session?")
 				timer.Reset(timerDuration)
 			case <-ctx.Done():
-				fmt.Println("case ctx done")
 				return errors.New("exit by user")
 			case err := <-scannerDone:
-				fmt.Println("case scanner done", err)
 				timer.Stop()
 				if err != nil {
 					return err
