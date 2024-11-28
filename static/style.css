@@ -188,3 +188,30 @@ body {
 .sessions li:last-child {
   border-bottom: none;
 }
+
+
+/* tooltip styles */
+
+.tooltip {
+  position: absolute;
+  display: block; /* Сделать блок видимым для анимации */
+  background-color: #f9f9f9;
+  border: 1px solid #fafafa;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  max-width: 200px;
+
+  /* Начальное состояние */
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none; /* Чтобы не мешал взаимодействию, пока невидим */
+}
+
+.tooltip.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto; /* Включаем взаимодействие, когда виден */
+}

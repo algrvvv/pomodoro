@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
   socket.onopen = () => {
     console.log('websocket connected')
     setTimeout(() => {
-      // console.log(stopwatch.innerHTML)
       if (stopwatch.innerHTML == "Загрузка...") {
         stopwatch.innerHTML = "Нет активной сессии"
       }
@@ -14,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   socket.onmessage = (msg) => {
     stopwatch.innerHTML = msg.data
-    // console.log('got data: ', msg.data)
   }
 
   socket.onclose = () => {
@@ -33,12 +31,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const today = new Date();
       const todayString = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`
 
-      renderCalendar(today.getMonth(), today.getFullYear(), data.calendar);
+      renderCalendar(today.getMonth(), today.getFullYear(), data.calendar, data.tooltips);
       renderSessions(data.sessions);
 
       renderLineChart(data.chart, todayString)
 
       renderTotalMinutes(data.totalMinutes)
+      addMouseOverEvent()
     });
 });
 
@@ -83,7 +82,7 @@ function renderSessions(sessions) {
   document.getElementById('stats-today-minutes').innerHTML = totalToday;
 }
 
-function renderCalendar(month, year, dates) {
+function renderCalendar(month, year, dates, tooltips) {
   const calendar = document.querySelector(".calendar");
   calendar.innerHTML = '<h3>Достижение цели</h3>';
 
@@ -104,8 +103,18 @@ function renderCalendar(month, year, dates) {
   let streak = 0;
   const today = new Date().getDate();
   for (let i = 1; i <= daysInMonth; i++) {
+    let dataForTooltip = "Сессий не было"
+    if (tooltips[i]) {
+      const t = tooltips[i]
+      dataForTooltip = `Статистика за ${i} число:<br><br>
+          ${t[1] ? 'Работа: ' + t[1] + ' мин.<br>' : ''}
+          ${t[2] ? 'Отдых: ' + t[2] + ' мин.' : ''}
+      `
+    }
+
     const day = document.createElement("span");
     day.className = "day";
+    day.setAttribute("data", dataForTooltip)
     day.textContent = i;
 
     // форматируем дату в формате YYYY-MM-DD
@@ -190,4 +199,34 @@ function renderLineChart(chartData, today) {
     },
   });
 }
+
+function addMouseOverEvent() {
+  const blocks = document.querySelectorAll('.day')
+  const tooltip = document.getElementById('tooltip')
+
+  blocks.forEach(b => {
+    b.addEventListener('mouseover', (event) => {
+      const data = b.getAttribute("data")
+
+      tooltip.innerHTML = data;
+      tooltip.style.top = event.pageY + 10 + 'px';
+      tooltip.style.left = event.pageX + 10 + 'px';
+      tooltip.classList.add('visible');
+    })
+
+    b.addEventListener('mousemove', (event) => {
+      tooltip.style.top = event.pageY + 10 + 'px';
+      tooltip.style.left = event.pageX + 10 + 'px';
+    })
+
+    b.addEventListener('mouseout', () => {
+      tooltip.classList.remove('visible')
+    })
+  })
+}
+
+
+
+
+
 
