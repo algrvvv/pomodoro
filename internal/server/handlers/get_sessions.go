@@ -24,9 +24,11 @@ func GetData(repo repositories.SessionRepository) http.HandlerFunc {
 			return
 		}
 
+		// данные для подсказок ['day' => 1: minutes; 2: minutes]
 		dataForTooltip := make(map[int]map[int]int)
-
+		// колво сессий для графика ['date' => 'count of session']
 		sCount := make(map[string]int, len(sessions))
+		// колво минут для графика ['date' => 'minutes of session']
 		sDuration := make(map[string]int, len(sessions))
 		totalMinutes := 0
 		var lastDate time.Time
@@ -73,14 +75,13 @@ func GetData(repo repositories.SessionRepository) http.HandlerFunc {
 			totalMinutes += s.Minutes
 		}
 
-		fmt.Println(dataForTooltip)
-
 		if displayZero {
 			// если есть дни с начала месяца, которых нет в общем списке сессий - заполняем их нулями
 			date := lastDate
 			for d := lastDate.Day() - 1; d > 0; d-- {
 				date = date.Add(-24 * time.Hour)
 				sCount[date.Format(time.DateOnly)] = 0
+				sDuration[date.Format(time.DateOnly)] = 0
 			}
 		}
 
@@ -105,7 +106,8 @@ func GetData(repo repositories.SessionRepository) http.HandlerFunc {
 			"sessions":     todaySessions,
 			"tooltips":     dataForTooltip,
 			"calendar":     datesAchivedGoal,
-			"chart":        sCount,
+			"chartCount":   sCount,
+			"chartMinutes": sDuration,
 		}
 
 		// jsonData, err := json.Marshal(data)

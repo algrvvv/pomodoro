@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderCalendar(today.getMonth(), today.getFullYear(), data.calendar, data.tooltips);
       renderSessions(data.sessions);
 
-      renderLineChart(data.chart, todayString)
+      renderLineChart(data.chartCount, data.chartMinutes, todayString)
 
       renderTotalMinutes(data.totalMinutes)
       addMouseOverEvent()
@@ -132,15 +132,18 @@ function renderCalendar(month, year, dates, tooltips) {
   document.getElementById('streak').innerHTML = streak;
 }
 
-function renderLineChart(chartData, today) {
+function renderLineChart(chartData, chartDataMinutes, today) {
   if (!chartData[today]) { chartData[today] = 0 }
+  if (!chartDataMinutes[today]) { chartDataMinutes[today] = 0 }
 
   const ctx = document.getElementById("lineChart").getContext("2d");
 
   const sortedData = Object.entries(chartData).sort(([dateA], [dateB]) => new Date(dateA) - new Date(dateB));
+  const sortedMinutesData = Object.entries(chartDataMinutes).sort(([dateA], [dateB]) => new Date(dateA) - new Date(dateB));
 
   const labels = sortedData.map(([date]) => new Date(date).toLocaleDateString());
   const data = sortedData.map(([, value]) => value);
+  const minutesData = sortedMinutesData.map(([, value]) => value);
 
   new Chart(ctx, {
     type: "line",
@@ -157,6 +160,19 @@ function renderLineChart(chartData, today) {
           pointRadius: 2,
           fill: true,
           tension: 0.4,
+          yAxisID: 'y1', // Используем первую ось Y
+        },
+        {
+          label: "Количество минут",
+          data: minutesData,
+          borderColor: "#8b5cf6",
+          backgroundColor: "rgba(196, 181, 253, 0.2)",
+          borderWidth: 2,
+          pointBackgroundColor: "#c4b5fd",
+          pointRadius: 2,
+          fill: true,
+          tension: 0.4,
+          yAxisID: 'y2', // Используем первую ось Y
         },
       ],
     },
@@ -173,7 +189,21 @@ function renderLineChart(chartData, today) {
           enabled: true,
           callbacks: {
             label: function(context) {
-              return `Дата: ${context.label}, Сессии: ${context.raw}`;
+              const datasetLabel = context.dataset.label;
+              const value = context.raw;
+              const label = context.label;
+
+              if (datasetLabel === "Количество сессий") {
+                return `Дата: ${label}, Сессии: ${value}`;
+              }
+
+              // Если набор данных - "Количество минут"
+              if (datasetLabel === "Количество минут") {
+                return `Дата: ${label}, Минут: ${value}`;
+              }
+
+              // Для других случаев (если нужно обработать)
+              return `${datasetLabel}: ${value}`;
             },
           },
         },
@@ -188,13 +218,21 @@ function renderLineChart(chartData, today) {
             text: "Дата",
           },
         },
-        y: {
+        y1: {
           title: {
             display: true,
             text: "Количество сессий",
           },
           beginAtZero: true,
         },
+        y2: {
+          title: {
+            display: true,
+            text: "Количество минут",
+          },
+          beginAtZero: true,
+          position: 'right'
+        }
       },
     },
   });
