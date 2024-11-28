@@ -24,13 +24,32 @@ func GetData(repo repositories.SessionRepository) http.HandlerFunc {
 			return
 		}
 
+		dataForTooltip := make(map[int]map[int]int)
+
 		sCount := make(map[string]int, len(sessions))
 		sDuration := make(map[string]int, len(sessions))
 		totalMinutes := 0
 		var lastDate time.Time
 		for _, s := range sessions {
+			day := s.CreatedAt.Day()
+			if _, ok := dataForTooltip[day]; !ok {
+				dataForTooltip[day] = make(map[int]int)
+			}
+
 			if s.SessionType != types.WorkSession {
+				if _, ok := dataForTooltip[day][types.BreakSession]; !ok {
+					dataForTooltip[day][types.BreakSession] = s.Minutes
+				} else {
+					dataForTooltip[day][types.BreakSession] += s.Minutes
+				}
+
 				continue
+			}
+
+			if _, ok := dataForTooltip[day][types.WorkSession]; !ok {
+				dataForTooltip[day][types.WorkSession] = s.Minutes
+			} else {
+				dataForTooltip[day][types.WorkSession] += s.Minutes
 			}
 
 			// проверка на пропещенные дни, котрые мы должны забить нулями
@@ -53,6 +72,8 @@ func GetData(repo repositories.SessionRepository) http.HandlerFunc {
 			}
 			totalMinutes += s.Minutes
 		}
+
+		fmt.Println(dataForTooltip)
 
 		if displayZero {
 			// если есть дни с начала месяца, которых нет в общем списке сессий - заполняем их нулями
@@ -82,6 +103,7 @@ func GetData(repo repositories.SessionRepository) http.HandlerFunc {
 			"minutesGoal":  config.Config.Pomodoro.SessionGoalMinutes,
 			"totalMinutes": totalMinutes,
 			"sessions":     todaySessions,
+			"tooltips":     dataForTooltip,
 			"calendar":     datesAchivedGoal,
 			"chart":        sCount,
 		}
