@@ -17,6 +17,7 @@ func GetData(repo repositories.SessionRepository) http.HandlerFunc {
 	displayZero = config.Config.App.DisplayZeroDays
 
 	return func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
 		sessions, err := repo.GetAll()
 		if err != nil {
 			fmt.Println("failed to get all sessions: ", err)
@@ -108,6 +109,7 @@ func GetData(repo repositories.SessionRepository) http.HandlerFunc {
 			"calendar":     datesAchivedGoal,
 			"chartCount":   sCount,
 			"chartMinutes": sDuration,
+			"time":         time.Since(start).String(),
 		}
 
 		// jsonData, err := json.Marshal(data)

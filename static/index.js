@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(response => response.json())
     .then(data => {
       console.log(data)
+      document.getElementById('time').textContent = `Load time: ${data.time}`
 
       const today = new Date();
       const todayString = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`

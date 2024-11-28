@@ -215,3 +215,17 @@ body {
   transform: translateY(0);
   pointer-events: auto; /* Включаем взаимодействие, когда виден */
 }
+
+
+/* load time styles */
+
+.time-container {
+  width: 100%;
+  display: flex;
+  justify-content: end;
+}
+
+#time {
+  color: #9ca3af;
+}
+
