@@ -92,6 +92,7 @@ func Start(
 			var breakDuration time.Duration
 
 			if sessionCount%config.Config.Pomodoro.BreakAfterSessions == 0 && sessionCount != 0 {
+				fmt.Println("😴Start long break")
 				breakDuration = time.Duration(config.Config.Pomodoro.LongBreakMinutes) * time.Minute
 			} else {
 				breakDuration = time.Duration(config.Config.Pomodoro.ShortBreakMinutes) * time.Minute
