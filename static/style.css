@@ -232,3 +232,28 @@ body {
   color: #9ca3af;
 }
 
+
+.month-calendar {
+    width: 200px; /* Ширина элемента */
+    padding: 10px; /* Внутренний отступ */
+    border: 1px solid #ccc; /* Цвет границы */
+    border-radius: 8px; /* Закругленные углы */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Легкая тень */
+    font-size: 14px; /* Размер текста */
+    color: #333; /* Цвет текста */
+    background-color: #f9f9f9; /* Цвет фона */
+    transition: all 0.3s ease; /* Анимация */
+}
+
+.month-calendar:focus {
+    border-color: #4caf50; /* Цвет границы при фокусе */
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2); /* Более интенсивная тень при фокусе */
+    outline: none; /* Убираем стандартный контур фокуса */
+    background-color: #ffffff; /* Светлый фон при фокусе */
+}
+
+.calendar-wrapper {
+  display: flex;
+  justify-content: end;
+  margin-bottom: 10px;
+}

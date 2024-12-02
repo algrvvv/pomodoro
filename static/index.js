@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const stopwatch = document.getElementById('stats-stopwatch')
   const socket = new WebSocket(`ws://localhost:3333/ws`)
+  const monthCalendar = document.getElementById('calendar')
 
   socket.onopen = () => {
     console.log('websocket connected')
@@ -23,19 +24,49 @@ document.addEventListener('DOMContentLoaded', () => {
     console.error(err)
   }
 
-  fetch("/api/v1/data")
+
+  // date format: "2024-12-01"
+  let date = localStorage.getItem("date")
+  if (!date) {
+    const d = new Date();
+    date = `${d.getFullYear()}-${d.getMonth() + 1}-01`
+    localStorage.setItem("date", date)
+  }
+  let splitedDate = date.split('-')
+  const dateWithoutDay = `${splitedDate[0]}-${splitedDate[1]}`
+
+  monthCalendar.value = dateWithoutDay
+  monthCalendar.addEventListener('change', () => {
+    let newDate = `${monthCalendar.value}-01`
+    localStorage.setItem("date", newDate)
+    window.location.reload()
+  })
+
+  fetch(`/api/v1/data?date=${date}`)
     .then(response => response.json())
     .then(data => {
-      console.log(data)
+      console.log("got data from request: ", data)
       document.getElementById('time').textContent = `Load time: ${data.time}`
 
-      const today = new Date();
-      const todayString = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`
+      const today = new Date(dateWithoutDay);
+      // const todayDate = today.getDate().toString().padStart(2, '0')
+      // const todayString = `${today.getFullYear()}-${today.getMonth() + 1}-${todayDate}`
+
+      const todayForChart = new Date();
+      let todayForChartString;
+      if (todayForChart.getMonth() == today.getMonth()) {
+        console.log("eq")
+        todayForChartString = formatDate(todayForChart)
+      } else {
+        console.log("noq eq")
+        todayForChartString = formatDate(today)
+      }
+      console.log(todayForChartString, todayForChart.getMonth(), today.getMonth())
 
       renderCalendar(today.getMonth(), today.getFullYear(), data.calendar, data.tooltips);
       renderSessions(data.sessions);
 
-      renderLineChart(data.chartCount, data.chartMinutes, todayString)
+      renderLineChart(data.chartCount, data.chartMinutes, todayForChartString)
 
       renderTotalMinutes(data.totalMinutes)
       addMouseOverEvent()
@@ -63,7 +94,8 @@ function renderSessions(sessions) {
     const getCorrectFormat = function(time) {
       const minutes = time.getMinutes().toString()
       const hours = time.getHours().toString()
-      return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`
+      return `${hours.padStart(2, '0')
+        }: ${minutes.padStart(2, '0')}`
     }
 
     const endDate = new Date(s.date)
@@ -76,7 +108,7 @@ function renderSessions(sessions) {
     const time = `${fStartTime} - ${fEndTime}`
     const date = `${endDate.getDate()}.${endDate.getMonth()}.${endDate.getFullYear()} ${time}`
 
-    li.textContent = `Сессия ${s.id} (${date}): Продолжительность ${s.duration} мин - ${type}`
+    li.textContent = `Сессия ${s.id}(${date}): Продолжительность ${s.duration} мин - ${type}`
     container.appendChild(li)
   });
 
@@ -107,9 +139,9 @@ function renderCalendar(month, year, dates, tooltips) {
     let dataForTooltip = "Сессий не было"
     if (tooltips[i]) {
       const t = tooltips[i]
-      dataForTooltip = `Статистика за ${i} число:<br><br>
-          ${t[1] ? 'Работа: ' + t[1] + ' мин.<br>' : ''}
-          ${t[2] ? 'Отдых: ' + t[2] + ' мин.' : ''}
+      dataForTooltip = `Статистика за ${i} число: <br><br>
+      ${t[1] ? 'Работа: ' + t[1] + ' мин.<br>' : ''}
+      ${t[2] ? 'Отдых: ' + t[2] + ' мин.' : ''}
       `
     }
 
@@ -266,6 +298,9 @@ function addMouseOverEvent() {
 
 
 
+function formatDate(date) {
+  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate().toString().padStart(2, '0')}`
+}
 
 
 
