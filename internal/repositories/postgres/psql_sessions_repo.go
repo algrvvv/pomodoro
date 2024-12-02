@@ -18,11 +18,13 @@ func NewPostgresRepo() repositories.SessionRepository {
 	return &PostgresSessionRepo{}
 }
 
-func (p *PostgresSessionRepo) GetAll() (sessions []repositories.Session, err error) {
+func (p *PostgresSessionRepo) GetAll(
+	start, end string,
+) (sessions []repositories.Session, err error) {
 	var rows *sql.Rows
 
-	query := "SELECT id, duration, type_id, created_at FROM sessions ORDER BY created_at DESC"
-	rows, err = database.C.Query(query)
+	query := "SELECT id, duration, type_id, created_at FROM sessions WHERE created_at >= $1 and created_at < $2 ORDER BY created_at DESC"
+	rows, err = database.C.Query(query, start, end)
 	if err != nil {
 		return
 	}

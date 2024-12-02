@@ -18,7 +18,23 @@ func GetData(repo repositories.SessionRepository) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-		sessions, err := repo.GetAll()
+
+		var endDate string
+		startDate := r.URL.Query().Get("date")
+		if startDate == "" {
+			startDate = time.Now().Format(time.DateOnly)
+			endDate = time.Now().AddDate(0, 1, 0).Format(time.DateOnly)
+		} else {
+			e, err := time.Parse(time.DateOnly, startDate)
+			if err != nil {
+				fmt.Println("failed to parse start date")
+				return
+			}
+
+			endDate = e.AddDate(0, 1, 0).Format(time.DateOnly)
+		}
+
+		sessions, err := repo.GetAll(startDate, endDate)
 		if err != nil {
 			fmt.Println("failed to get all sessions: ", err)
 			http.Error(w, "failed to get all sessions", http.StatusInternalServerError)
