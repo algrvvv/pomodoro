@@ -8,6 +8,24 @@ import (
 	"github.com/algrvvv/pomodoro/internal/server/handlers"
 )
 
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Добавляем CORS-заголовки
+		w.Header().Set("Access-Control-Allow-Origin", "*") // Разрешаем все источники
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// Если это preflight-запрос, отправляем пустой ответ
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		// Передаем управление следующему обработчику
+		next.ServeHTTP(w, r)
+	})
+}
+
 func NewServer(r repositories.SessionRepository) *http.Server {
 	s := http.NewServeMux()
 
@@ -19,6 +37,6 @@ func NewServer(r repositories.SessionRepository) *http.Server {
 
 	return &http.Server{
 		Addr:    ":" + config.Config.App.Port,
-		Handler: s,
+		Handler: corsMiddleware(s),
 	}
 }
