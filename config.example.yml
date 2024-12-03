@@ -8,6 +8,11 @@ db:
   pass: root
   dbname: dbname
 
+integrations:
+  - name: wakatime
+    enabled: false
+    api_key: your_api_key 
+
 pomodoro:
   # через сколько минут напомнить о начале рабочей сессии
   startSessionReminder: 5 

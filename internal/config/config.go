@@ -1,5 +1,11 @@
 package config
 
+type Integration struct {
+	Name    string `yaml:"name"    json:"name"`
+	Enabled bool   `yaml:"enabled" json:"enabled"`
+	ApiKey  string `yaml:"api_key" json:"-"`
+}
+
 type PomodoroConfig struct {
 	// StartWorkReminder колво минут через которое будет высвечено напоминание о начале
 	// новой рабочей сессии
@@ -38,9 +44,10 @@ type DatabaseConfig struct {
 }
 
 type Cfg struct {
-	App      AppConfig      `yaml:"app"`
-	DB       DatabaseConfig `yaml:"db"`
-	Pomodoro PomodoroConfig `yaml:"pomodoro"`
+	App          AppConfig      `yaml:"app"`
+	DB           DatabaseConfig `yaml:"db"`
+	Pomodoro     PomodoroConfig `yaml:"pomodoro"`
+	Intergations []Integration  `yaml:"integrations"`
 }
 
 var Config Cfg
