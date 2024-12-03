@@ -61,6 +61,7 @@ func WakatimeIntegration(w http.ResponseWriter, r *http.Request) {
 	context, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	start := time.Now()
 	wg.Add(4) // 2 - делают запросы; 2 - их обрабатывают
 	go getSummaries(context, todayStats, "today", i, wg)
 	go getSummaries(context, weekStats, "last_7_days", i, wg)
@@ -107,6 +108,7 @@ func WakatimeIntegration(w http.ResponseWriter, r *http.Request) {
 	err := json.NewEncoder(w).Encode(map[string]interface{}{
 		"week":  weekResp,
 		"today": todayResp,
+		"time":  time.Since(start).String(),
 	})
 	if err != nil {
 		fmt.Println("failed to encode message: ", err)
