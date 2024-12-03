@@ -29,8 +29,11 @@ func corsMiddleware(next http.Handler) http.Handler {
 func NewServer(r repositories.SessionRepository) *http.Server {
 	s := http.NewServeMux()
 
+	// роуты
 	s.HandleFunc("GET /api/v1/data", handlers.GetData(r))
 	s.HandleFunc("/ws", handlers.GetPassedSessionTime)
+	// интеграции
+	s.HandleFunc("GET /api/v1/integrations/wakatime", handlers.WakatimeIntegration)
 
 	// статический роут для клиентских файлов
 	s.Handle("/", http.FileServer(http.Dir("./static")))
