@@ -6,8 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
   socket.onopen = () => {
     console.log('websocket connected')
     setTimeout(() => {
-      if (stopwatch.innerHTML == "Загрузка...") {
-        stopwatch.innerHTML = "Нет активной сессии"
+      if (stopwatch.innerHTML.includes('svg')) {
+        stopwatch.innerHTML = "<span>Нет активной сессии</span>"
       }
     }, 3000)
   }
@@ -59,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("данные по статистике: ", data)
             document.getElementById('wakatime-today').textContent = data.today.data
             document.getElementById('wakatime-week').textContent = data.week.data
+            document.getElementById('wakatime-loadtime').textContent = data.time
 
             changeVisible('wakatime-content', 'flex')
           }).catch(err => console.error("err: ", err))
