@@ -22,7 +22,18 @@
 
       <div class="stats-block">
         <h3>Текущая сессия</h3>
-        <span id="stats-stopwatch">Загрузка...</span>
+        <span id="stats-stopwatch">
+            <svg class="icon" viewBox="0 0 256 256">
+              <line x1="128" y1="32" x2="128" y2="64" stroke-linecap="round" stroke-linejoin="round" stroke-width="24"></line>
+              <line x1="195.9" y1="60.1" x2="173.3" y2="82.7" stroke-linecap="round" stroke-linejoin="round" stroke-width="24"></line>
+              <line x1="224" y1="128" x2="192" y2="128" stroke-linecap="round" stroke-linejoin="round" stroke-width="24"></line>
+              <line x1="195.9" y1="195.9" x2="173.3" y2="173.3" stroke-linecap="round" stroke-linejoin="round" stroke-width="24"></line>
+              <line x1="128" y1="224" x2="128" y2="192" stroke-linecap="round" stroke-linejoin="round" stroke-width="24"></line>
+              <line x1="60.1" y1="195.9" x2="82.7" y2="173.3" stroke-linecap="round" stroke-linejoin="round" stroke-width="24"></line>
+              <line x1="32" y1="128" x2="64" y2="128" stroke-linecap="round" stroke-linejoin="round" stroke-width="24"></line>
+              <line x1="60.1" y1="60.1" x2="82.7" y2="82.7" stroke-linecap="round" stroke-linejoin="round" stroke-width="24"></line>
+            </svg>
+          </span>
       </div>
 
       <div class="stats-block">
@@ -42,9 +53,42 @@
       </div>
     </div>
 
+
+    <div id="wakatime-integration" style="display: none">
+      <div id="wakatime-content" class="stats" style="display: none">
+        <div class="stats-block">
+          <h3>Wakatime</h3>
+          <span>Integration</span>
+        </div>
+        <div class="stats-block">
+          <h3>Сегодня</h3>
+          <span id="wakatime-today"></span>
+        </div>
+        <div class="stats-block">
+          <h3>Неделя</h3>
+          <span id="wakatime-week"></span>
+        </div>
+      </div>
+      <div id="wakatime-loading" class="stats">
+          <div aria-label="Loading..." role="status" class="loader">
+            <svg class="icon" viewBox="0 0 256 256">
+              <line x1="128" y1="32" x2="128" y2="64" stroke-linecap="round" stroke-linejoin="round" stroke-width="24"></line>
+              <line x1="195.9" y1="60.1" x2="173.3" y2="82.7" stroke-linecap="round" stroke-linejoin="round" stroke-width="24"></line>
+              <line x1="224" y1="128" x2="192" y2="128" stroke-linecap="round" stroke-linejoin="round" stroke-width="24"></line>
+              <line x1="195.9" y1="195.9" x2="173.3" y2="173.3" stroke-linecap="round" stroke-linejoin="round" stroke-width="24"></line>
+              <line x1="128" y1="224" x2="128" y2="192" stroke-linecap="round" stroke-linejoin="round" stroke-width="24"></line>
+              <line x1="60.1" y1="195.9" x2="82.7" y2="173.3" stroke-linecap="round" stroke-linejoin="round" stroke-width="24"></line>
+              <line x1="32" y1="128" x2="64" y2="128" stroke-linecap="round" stroke-linejoin="round" stroke-width="24"></line>
+              <line x1="60.1" y1="60.1" x2="82.7" y2="82.7" stroke-linecap="round" stroke-linejoin="round" stroke-width="24"></line>
+            </svg>
+            <!-- <span class="loading-text">Загрузка...</span> -->
+          </div>
+        </div>
+    </div>
+
     <!-- Верхняя часть -->
     <div class="calendar-wrapper">
-      <input type="month" class="month-calendar" id="calendar"/>
+      <input type="month" class="month-calendar" id="calendar" />
     </div>
     <div class="wrapper">
       <div class="calendar">
@@ -66,7 +110,7 @@
   </div>
 
   <div class="time-container">
-      <small id="time"></small>
+    <small id="time"></small>
   </div>
 </body>
 

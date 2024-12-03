@@ -48,6 +48,24 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log("got data from request: ", data)
       document.getElementById('time').textContent = `Load time: ${data.time}`
 
+      data.integrations.forEach(i => {
+        if (i.name.toLowerCase() == "wakatime" && i.enabled) {
+
+          changeVisible('wakatime-integration', 'block')
+          console.log('start fetching data...')
+          fetchWakatimeStats().then(data => {
+            changeVisible('wakatime-loading', 'none')
+
+            console.log("данные по статистике: ", data)
+            document.getElementById('wakatime-today').textContent = data.today.data
+            document.getElementById('wakatime-week').textContent = data.week.data
+
+            changeVisible('wakatime-content', 'flex')
+          }).catch(err => console.error("err: ", err))
+        }
+      })
+      console.log('continue render...')
+
       const today = new Date(dateWithoutDay);
       // const todayDate = today.getDate().toString().padStart(2, '0')
       // const todayString = `${today.getFullYear()}-${today.getMonth() + 1}-${todayDate}`
@@ -55,13 +73,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const todayForChart = new Date();
       let todayForChartString;
       if (todayForChart.getMonth() == today.getMonth()) {
-        console.log("eq")
         todayForChartString = formatDate(todayForChart)
       } else {
-        console.log("noq eq")
         todayForChartString = formatDate(today)
       }
-      console.log(todayForChartString, todayForChart.getMonth(), today.getMonth())
 
       renderCalendar(today.getMonth(), today.getFullYear(), data.calendar, data.tooltips);
       renderSessions(data.sessions);
@@ -94,8 +109,7 @@ function renderSessions(sessions) {
     const getCorrectFormat = function(time) {
       const minutes = time.getMinutes().toString()
       const hours = time.getHours().toString()
-      return `${hours.padStart(2, '0')
-        }: ${minutes.padStart(2, '0')}`
+      return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`
     }
 
     const endDate = new Date(s.date)
@@ -106,7 +120,7 @@ function renderSessions(sessions) {
     const fEndTime = getCorrectFormat(endDate)
 
     const time = `${fStartTime} - ${fEndTime}`
-    const date = `${endDate.getDate()}.${endDate.getMonth()}.${endDate.getFullYear()} ${time}`
+    const date = `${endDate.getDate()}.${endDate.getMonth() + 1}.${endDate.getFullYear()} ${time}`
 
     li.textContent = `Сессия ${s.id}(${date}): Продолжительность ${s.duration} мин - ${type}`
     container.appendChild(li)
@@ -256,6 +270,8 @@ function renderLineChart(chartData, chartDataMinutes, today) {
             display: true,
             text: "Количество сессий",
           },
+          // ticks: { stepSize: 5 },
+          grid: { display: true },
           beginAtZero: true,
         },
         y2: {
@@ -263,6 +279,9 @@ function renderLineChart(chartData, chartDataMinutes, today) {
             display: true,
             text: "Количество минут",
           },
+          // выключаем отображение сетки для второго игрика,
+          // чтобы лучше выглядело
+          grid: { display: false },
           beginAtZero: true,
           position: 'right'
         }
@@ -296,11 +315,26 @@ function addMouseOverEvent() {
   })
 }
 
+async function fetchWakatimeStats() {
+  const url = `/api/v1/integrations/wakatime`
+  const response = await fetch(url, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
 
+  if (!response.ok) {
+    throw new Error(`Ошибка: ${response.status}`);
+  }
+  const data = await response.json();
+  return data;
+}
 
 function formatDate(date) {
   return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate().toString().padStart(2, '0')}`
 }
 
-
+function changeVisible(id, mode) {
+  document.getElementById(id).style.display = mode;
+}
 

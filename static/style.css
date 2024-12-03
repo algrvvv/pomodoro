@@ -143,6 +143,8 @@ body {
   border-radius: 8px;
   background-color: #fafafa;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  height: 100px;
 }
 
 .stats-block {
@@ -256,4 +258,31 @@ body {
   display: flex;
   justify-content: end;
   margin-bottom: 10px;
+}
+
+/* loader */
+
+.loader {
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  height: 1.5rem;
+  width: 1.5rem;
+  animation: spin 1s linear infinite;
+  stroke: rgba(107, 114, 128, 1);
+}
+
+.loading-text {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 500;
+  color: rgba(107, 114, 128, 1);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
