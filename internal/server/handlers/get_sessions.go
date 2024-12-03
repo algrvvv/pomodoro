@@ -126,6 +126,7 @@ func GetData(repo repositories.SessionRepository) http.HandlerFunc {
 			"chartCount":   sCount,
 			"chartMinutes": sDuration,
 			"time":         time.Since(start).String(),
+			"integrations": config.Config.Intergations,
 		}
 
 		// jsonData, err := json.Marshal(data)
