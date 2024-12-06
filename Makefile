@@ -1,5 +1,8 @@
-run:
-	@go run cmd/pomodoro/main.go
+work:
+	@go run cmd/pomodoro/main.go --type=work
+
+break:
+	@go run cmd/pomodoro/main.go --type=break
 
 web:
 	@go run cmd/pomodoro/main.go --only-web

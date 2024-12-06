@@ -19,10 +19,10 @@ import (
 
 var (
 	sessionCount = 0
-	sessionType  = types.WorkSession
 	notifier     notify.Notifier
 	repo         repositories.SessionRepository
 	achivedGoal  bool
+	sessionType  int
 )
 
 func saveTime(t *string) {
@@ -59,10 +59,17 @@ func Start(
 	ctx context.Context,
 	n notify.Notifier,
 	r repositories.SessionRepository,
+	firstSessionType string,
 	wg *sync.WaitGroup,
 ) error {
 	defer wg.Done()
 	var err error
+
+	if firstSessionType == "break" {
+		sessionType = types.BreakSession
+	} else {
+		sessionType = types.WorkSession
+	}
 
 	notifier = n
 	repo = r

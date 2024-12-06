@@ -18,10 +18,14 @@ import (
 	"github.com/algrvvv/pomodoro/internal/server"
 )
 
-var onlyWebServer bool
+var (
+	onlyWebServer    bool
+	startSessionType string
+)
 
 func main() {
 	flag.BoolVar(&onlyWebServer, "only-web", false, "only web server")
+	flag.StringVar(&startSessionType, "type", "work", "first session type (can be work or break)")
 	flag.Parse()
 
 	if err := config.Parse("config.yml"); err != nil {
@@ -41,19 +45,12 @@ func main() {
 	sessionRepo := repos.NewPostgresRepo()
 	serv := server.NewServer(sessionRepo)
 
-	// NOTE: перед запуском проверяем наличие данных за прошлые месяца, так как у нас нет аналитики - у нас нет нужды в том,
-	// чтобы долго хранить данные. поэтому данные за прошлый месяц (не последние 30 дней) мы можем просто чистить
-	// if err := sessionRepo.DeletePrevSessions(); err != nil {
-	// 	fmt.Println("failed to delete prev sessions: ", err)
-	// 	os.Exit(1)
-	// }
-
 	if !onlyWebServer {
 		wg.Add(1)
 		notifier := notify.GetTerminalNotifier()
 
 		go func() {
-			if err := app.Start(ctx, notifier, sessionRepo, &wg); err != nil {
+			if err := app.Start(ctx, notifier, sessionRepo, startSessionType, &wg); err != nil {
 				fmt.Println("app error: ", err)
 				os.Exit(0)
 			}
