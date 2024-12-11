@@ -1,3 +1,6 @@
+run:
+	@go run cmd/pomodoro/main.go --type=work
+
 work:
 	@go run cmd/pomodoro/main.go --type=work
 
