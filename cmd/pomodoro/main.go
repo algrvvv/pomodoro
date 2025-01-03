@@ -21,11 +21,13 @@ import (
 var (
 	onlyWebServer    bool
 	startSessionType string
+	firstSessionTime int
 )
 
 func main() {
 	flag.BoolVar(&onlyWebServer, "only-web", false, "only web server")
 	flag.StringVar(&startSessionType, "type", "work", "first session type (can be work or break)")
+	flag.IntVar(&firstSessionTime, "time", -1, "first session time")
 	flag.Parse()
 
 	if err := config.Parse("config.yml"); err != nil {
@@ -50,7 +52,7 @@ func main() {
 		notifier := notify.GetTerminalNotifier()
 
 		go func() {
-			if err := app.Start(ctx, notifier, sessionRepo, startSessionType, &wg); err != nil {
+			if err := app.Start(ctx, notifier, sessionRepo, startSessionType, firstSessionTime, &wg); err != nil {
 				fmt.Println("app error: ", err)
 				os.Exit(0)
 			}

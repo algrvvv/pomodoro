@@ -27,6 +27,8 @@ type wakatimeResponse struct {
 	} `json:"cumulative_total"`
 }
 
+const timeout = 10 * time.Second
+
 // type weekResponse struct {
 //   Data struct {} `json:"data"`
 // }
@@ -58,7 +60,7 @@ func WakatimeIntegration(w http.ResponseWriter, r *http.Request) {
 	todayStats := make(chan resp)
 
 	wg := &sync.WaitGroup{}
-	context, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	context, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	start := time.Now()

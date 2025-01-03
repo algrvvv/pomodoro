@@ -23,6 +23,7 @@ var (
 	repo         repositories.SessionRepository
 	achivedGoal  bool
 	sessionType  int
+	sessionTime  int
 )
 
 func saveTime(t *string) {
@@ -60,6 +61,7 @@ func Start(
 	n notify.Notifier,
 	r repositories.SessionRepository,
 	firstSessionType string,
+	firstSessionTime int,
 	wg *sync.WaitGroup,
 ) error {
 	defer wg.Done()
@@ -70,6 +72,8 @@ func Start(
 	} else {
 		sessionType = types.WorkSession
 	}
+
+	sessionTime = firstSessionTime
 
 	notifier = n
 	repo = r
@@ -86,7 +90,14 @@ func Start(
 			utils.ClearTerminal()
 			fmt.Print(notify.BackToWork)
 
-			workDuration := time.Duration(config.Config.Pomodoro.WorkMinutes) * time.Minute
+			var workDuration time.Duration
+			if sessionTime != -1 {
+				workDuration = time.Duration(sessionTime) * time.Minute
+				sessionTime = -1
+			} else {
+				workDuration = time.Duration(config.Config.Pomodoro.WorkMinutes) * time.Minute
+			}
+
 			if err := startTimer(ctx, workDuration); err != nil {
 				return err
 			}
@@ -103,6 +114,11 @@ func Start(
 				breakDuration = time.Duration(config.Config.Pomodoro.LongBreakMinutes) * time.Minute
 			} else {
 				breakDuration = time.Duration(config.Config.Pomodoro.ShortBreakMinutes) * time.Minute
+			}
+
+			if sessionTime != -1 {
+				breakDuration = time.Duration(sessionTime) * time.Minute
+				sessionTime = -1
 			}
 
 			if err := startTimer(ctx, breakDuration); err != nil {
