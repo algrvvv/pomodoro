@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(response => response.json())
     .then(data => {
       console.log("got data from request: ", data)
-      document.getElementById('time').textContent = `Load time: ${data.time}`
+      document.getElementById('time').textContent = `Время загрузки: ${data.time}`
 
       data.integrations.forEach(i => {
         if (i.name.toLowerCase() == "wakatime" && i.enabled) {
