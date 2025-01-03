@@ -301,3 +301,49 @@ body {
     transform: rotate(360deg);
   }
 }
+
+/* стили для иконки стрика */
+
+.streak-block {
+  position: relative;
+
+  width: 64px;
+  height: 64px;
+  max-width: 64px;
+  max-height: 64px;
+
+  margin-top: -25px;
+}
+
+.streak-days {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  color: white;
+  font-family: sans-serif;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
