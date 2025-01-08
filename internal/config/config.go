@@ -1,9 +1,13 @@
 package config
 
+import "time"
+
 type Integration struct {
-	Name    string `yaml:"name"    json:"name"`
-	Enabled bool   `yaml:"enabled" json:"enabled"`
-	ApiKey  string `yaml:"api_key" json:"-"`
+	Name            string        `yaml:"name"    json:"name"`
+	Enabled         bool          `yaml:"enabled" json:"enabled"`
+	ApiKey          string        `yaml:"api_key" json:"-"`
+	TimeoutInSecond int           `yaml:"timeout" json:"-"`
+	Timeout         time.Duration `yaml:"-"       json:"-"`
 }
 
 type PomodoroConfig struct {
