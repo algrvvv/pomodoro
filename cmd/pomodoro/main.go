@@ -31,7 +31,7 @@ func main() {
 	flag.Parse()
 
 	if err := config.Parse("config.yml"); err != nil {
-		fmt.Println("failed to load config")
+		fmt.Println("failed to load config:", err)
 		os.Exit(1)
 	}
 	config.Config.Pomodoro.SessionGoalMinutes = config.Config.Pomodoro.WorkMinutes * config.Config.Pomodoro.SessionsGoal
