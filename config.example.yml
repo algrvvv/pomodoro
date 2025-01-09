@@ -10,8 +10,18 @@ db:
 
 integrations:
   - name: wakatime
+    # включена ли интеграция
     enabled: false
-    api_key: your_api_key 
+    # апи ключ
+    api_key: your_api_key
+    # таймаут получения данных в секундах
+    timeout: 10 
+
+  - name: monkeytype
+    enabled: false
+    api_key: your_api_key
+    timeout: 10
+
 
 pomodoro:
   # через сколько минут напомнить о начале рабочей сессии
