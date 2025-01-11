@@ -34,6 +34,7 @@ func NewServer(r repositories.SessionRepository) *http.Server {
 	s.HandleFunc("/ws", handlers.GetPassedSessionTime)
 	// интеграции
 	s.HandleFunc("GET /api/v1/integrations/wakatime", handlers.WakatimeIntegration)
+	s.HandleFunc("GET /api/v1/integrations/monkeytype", handlers.MonkeyTypeIntegration)
 
 	// статический роут для клиентских файлов
 	s.Handle("/", http.FileServer(http.Dir("./static")))
