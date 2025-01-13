@@ -325,7 +325,21 @@ body {
   font-family: sans-serif;
 }
 
+/* стили блоков интеграции */
 
+#integrations {
+  display: flex;
+}
+
+#wakatime-integration {
+  width: 50%;
+  margin-right: 10px;
+}
+
+#monkeytype-integration {
+  width: 50%;
+  margin-left: 10px;
+}
 
 
 

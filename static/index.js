@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let splitedDate = date.split('-')
   const dateWithoutDay = `${splitedDate[0]}-${splitedDate[1]}`
 
+  // здесь может быть неправильный формат - 2025-1
   monthCalendar.value = dateWithoutDay
   monthCalendar.addEventListener('change', () => {
     let newDate = `${monthCalendar.value}-01`
@@ -56,13 +57,35 @@ document.addEventListener('DOMContentLoaded', () => {
           fetchWakatimeStats().then(data => {
             changeVisible('wakatime-loading', 'none')
 
-            console.log("данные по статистике: ", data)
+            console.log("got wakatime data: ", data)
             document.getElementById('wakatime-today').textContent = data.today.data
             document.getElementById('wakatime-week').textContent = data.week.data
             document.getElementById('wakatime-loadtime').textContent = data.time
 
             changeVisible('wakatime-content', 'flex')
           }).catch(err => console.error("err: ", err))
+        } else if (i.name.toLowerCase() == "monkeytype" && i.enabled) {
+          changeVisible('monkeytype-integration', 'block')
+          console.log('start fetching monkeytype data...')
+          fetchMonkeyTypeStats().then(data => {
+            changeVisible('monkeytype-loading', 'none')
+
+            console.log("got monkeytype data: ", data)
+            if (data.error != '') {
+              alert("ошибка получения данных: " + data.error)
+            }
+
+            const now = new Date().toLocaleDateString();
+            const lastTest = new Date(data.lastDay).toLocaleDateString();
+            const lastDayIsToday = now == lastTest;
+
+            document.getElementById('monkeytype-todayTests').textContent = lastDayIsToday ? data.todayTests : 0;
+            document.getElementById('monkeytype-totalTests').textContent = data.startedTests;
+            document.getElementById('monkeytype-time').textContent = data.timeTyping;
+            document.getElementById('monkeytype-loadtime').textContent = data.time;
+
+            changeVisible('monkeytype-content', 'flex')
+          })
         }
       })
       console.log('continue render...')
@@ -316,8 +339,7 @@ function addMouseOverEvent() {
   })
 }
 
-async function fetchWakatimeStats() {
-  const url = `/api/v1/integrations/wakatime`
+async function fetchData(url) {
   const response = await fetch(url, {
     headers: {
       'Content-Type': 'application/json'
@@ -329,6 +351,16 @@ async function fetchWakatimeStats() {
   }
   const data = await response.json();
   return data;
+}
+
+async function fetchWakatimeStats() {
+  const url = `/api/v1/integrations/wakatime`
+  return fetchData(url);
+}
+
+async function fetchMonkeyTypeStats() {
+  const url = '/api/v1/integrations/monkeytype'
+  return fetchData(url)
 }
 
 function formatDate(date) {
